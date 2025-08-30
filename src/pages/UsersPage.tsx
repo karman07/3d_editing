@@ -27,6 +27,7 @@ export default function UsersPage() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsCreating(true);
+    console.log(email)
     try {
       await createUser(username, password, role);
       setUsername("");
