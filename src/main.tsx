@@ -2,9 +2,18 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
+import { BrowserRouter } from 'react-router-dom'
+import { UsersProvider } from './context/UsersContext.tsx'
+import { RevisionsProvider } from './context/RevisionsContext.tsx'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+     <BrowserRouter>
+     <UsersProvider>
+      <RevisionsProvider>
+        <App />
+      </RevisionsProvider>
+     </UsersProvider>
+     </BrowserRouter>
   </React.StrictMode>,
 )
