@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
   User,
-  
   Link2,
   Trash2,
   PlusCircle,
@@ -23,7 +22,7 @@ export default function AssignmentsPage() {
   } = useAdmin();
 
   const [uid, setUid] = useState("");
-  const [mid, setMid] = useState("");
+  const [mids, setMids] = useState<string[]>([]);
 
   useEffect(() => {
     fetchUsers();
@@ -33,11 +32,17 @@ export default function AssignmentsPage() {
 
   const doAssign = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!uid || !mid) return alert("Select both user and model");
+    if (!uid || mids.length === 0)
+      return alert("Select a user and at least one model");
+
     try {
-      await assignModel(uid, mid);
+      // Call API repeatedly for each selected model
+      for (const mid of mids) {
+        await assignModel(uid, mid);
+      }
       setUid("");
-      setMid("");
+      setMids([]);
+      fetchAssignments();
     } catch (err: any) {
       alert(err.message || "Assign failed");
     }
@@ -80,21 +85,26 @@ export default function AssignmentsPage() {
 
           <div className="flex-1">
             <label className="block text-sm font-medium text-slate-600 mb-1">
-              Select Model
+              Select Models (multiple)
             </label>
             <div className="relative">
               <select
-                value={mid}
-                onChange={(e) => setMid(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none"
+                multiple
+                value={mids}
+                onChange={(e) =>
+                  setMids(Array.from(e.target.selectedOptions, (opt) => opt.value))
+                }
+                className="w-full pl-3 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-400 focus:outline-none h-32"
               >
-                <option value="">Choose model</option>
                 {models.map((m) => (
                   <option key={m._id} value={m._id}>
                     {m.name}
                   </option>
                 ))}
               </select>
+              <p className="text-xs text-slate-500 mt-1">
+                Hold Ctrl (Windows) / Cmd (Mac) to select multiple models
+              </p>
             </div>
           </div>
 
@@ -117,7 +127,7 @@ export default function AssignmentsPage() {
 
           {assignments.length === 0 ? (
             <p className="text-slate-500 text-center py-6">
-              No assignments found. Start by assigning a model to a user.
+              No assignments found. Start by assigning models to a user.
             </p>
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
